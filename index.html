@@ -9,8 +9,6 @@
     <link href="style.css" type="text/css" rel="stylesheet" />
 
     <!--SCRIPT AND BOOTSRAP STYLES FOR NAVBAR-->
-
-
 </head>
 
 <body>
@@ -43,37 +41,126 @@
 
     <!--THIS IS THE FORM SUBMISSION DIV-->
     <div>
-        <form action="/action_page.php">
+        <form action="action_page.php" id="form" name="myform" method="post">
             <div class="container">
                 <p>Please fill in this form to create an account.</p>
 
+                <input type="text" id="email" placeholder="Enter Email" name="email" required>
 
-                <label for="email"><b>Email</b></label>
-                <input type="text" placeholder="Enter Email" name="email" required>
 
-                <label for="psw"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="psw" required>
+                <input type="password" id="pass_first" placeholder="Enter Password" name="psw" required>
 
-                <label for="psw-repeat"><b>Repeat Password</b></label>
-                <input type="password" placeholder="Repeat Password" name="psw-repeat" required>
+                <input type="password" id="pass_second" placeholder="Repeat Password" name="psw-repeat" required>
 
-                <label>
-                <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
-              </label>
 
-                <p>By creating an account you agree to our <a href="#" style="color:dodgerblue">Terms & Privacy</a>.</p>
+                <p>By creating an account you agree to our <a href="pages/terms.html" style="color:dodgerblue">Terms & Privacy</a></p>
 
                 <div class="clearfix">
                     <button type="button" class="cancelbtn">Cancel</button>
-                    <button type="submit" class="signupbtn">Sign Up</button>
+                    <button type="submit" id="bt" onclick="saveFile()" value="registration" class="signupbtn"><a href="users/signedup.html">Sign Up</a></button>
                 </div>
+
             </div>
         </form>
     </div>
 </body>
 
-<footer>
 
-</footer>
+<script>
+    let saveFile = () => {
+
+        // Get the data from each element on the form.
+        const email = document.getElementById('email');
+        const pass_first = document.getElementById('pass_first');
+        const pass_second = document.getElementById('pass_second');
+
+        // This variable stores all the data.
+        let data =
+            '\r Email: ' + email.value + ' \r\n ' +
+            'Password: ' + pass_first.value + ' \r\n ';
+
+        // Convert the text to BLOB.
+        const textToBLOB = new Blob([data], {
+            type: 'text/plain'
+        });
+        const sFileName = 'formData.txt'; // The file to save the data.
+
+        let newLink = document.createElement("a");
+        newLink.download = sFileName;
+
+        if (window.webkitURL != null) {
+            newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+        } else {
+            newLink.href = window.URL.createObjectURL(textToBLOB);
+            newLink.style.display = "none";
+            document.body.appendChild(newLink);
+        }
+
+        //newLink.click();
+    }
+</script>
+
+
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+
+<style>
+    #form label {
+        float: center;
+        width: auto;
+    }
+    
+    #error_msg {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    $(document).ready(function() {
+        var $submitBtn = $("#form input[type='submit']");
+        var $passwordBox = $("#pass_first");
+        var $confirmBox = $("#pass_second");
+        var $errorMsg = $('<p id="error_msg">Passwords do not match.</p>');
+
+        // This is incase the user hits refresh - some browsers will maintain the disabled state of the button.
+        $submitBtn.removeAttr("disabled");
+
+        function checkMatchingPasswords() {
+            if ($confirmBox.val() != "" && $passwordBox.val != "") {
+                if ($confirmBox.val() != $passwordBox.val()) {
+                    $submitBtn.attr("disabled", "disabled");
+                    $errorMsg.insertAfter($confirmBox);
+                }
+            }
+        }
+
+        function resetPasswordError() {
+            $submitBtn.removeAttr("disabled");
+            var $errorCont = $("#error_msg");
+            if ($errorCont.length > 0) {
+                $errorCont.remove();
+            }
+        }
+
+
+        $("#pass_second, #pass_first")
+            .on("keydown", function(e) {
+                /* only check when the tab or enter keys are pressed
+                 * to prevent the method from being called needlessly  */
+                if (e.keyCode == 13 || e.keyCode == 9) {
+                    checkMatchingPasswords();
+                }
+            })
+            .on("blur", function() {
+                // also check when the element looses focus (clicks somewhere else)
+                checkMatchingPasswords();
+            })
+            .on("focus", function() {
+                // reset the error message when they go to make a change
+                resetPasswordError();
+            })
+
+    });
+</script>
 
 </html>
